@@ -1,89 +1,107 @@
 import { useState } from 'react'
 
-export default function WorkoutLogger({ onSaveSet, routineName, setRoutineName, knownExercises }) {
-    const [exercise, setExercise] = useState('')
-    const [reps, setReps] = useState('')
-    const [weight, setWeight] = useState('')
+export default function WorkoutLogger({ onSaveSet, routineName, setRoutineName, knownExercises, workoutHistory }) {
+  const [exercise, setExercise] = useState('')
+  const [weight, setWeight] = useState('')
+  const [reps, setReps] = useState('')
 
-    const handleAddSet = (e) => {
-        e.preventDefault()
-        onSaveSet({ exercise, weight, reps })
-        setWeight('')
-        setReps('')
-    }
+  const handleSave = (e) => {
+    e.preventDefault()
+    if (!exercise || !weight || !reps) return
+    onSaveSet({ exercise, weight: Number(weight), reps: Number(reps) })
+    setWeight('')
+    setReps('')
+    // Mantenemos el ejercicio seleccionado para agilizar el registro de la siguiente serie
+  }
 
-    return (
-        <div className="bg-slate-900 p-5 rounded-2xl shadow-lg border border-slate-800">
-            <h3 className="text-emerald-400 font-semibold mb-4 text-lg">Registrar Serie</h3>
+  return (
+    <div className="animate-fade-in space-y-6">
+      <h2 className="text-2xl font-bold text-white tracking-tight">Registro</h2>
+      
+      <div className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <input 
+          type="text" 
+          placeholder="Nombre de la rutina (ej. Upper)" 
+          value={routineName}
+          onChange={(e) => setRoutineName(e.target.value)}
+          className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white mb-4 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-colors"
+        />
 
-            <form onSubmit={handleAddSet} className="space-y-4">
-                {/* Nombre Rutina */}
-                <div>
-                    <label className="block text-slate-400 text-sm mb-1 ml-1">Rutina de hoy</label>
-                    <input
-                        type="text"
-                        value={routineName}
-                        onChange={(e) => setRoutineName(e.target.value)}
-                        placeholder="Enfoque de hoy"
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-emerald-500 transition-all font-semibold"
-                    />
-                </div>
+        <form onSubmit={handleSave} className="space-y-4">
+          <div>
+            <label className="text-xs text-slate-400 font-bold mb-1 block">EJERCICIO</label>
+            <input 
+              type="text" 
+              list="exercises"
+              value={exercise}
+              onChange={(e) => setExercise(e.target.value)}
+              placeholder="Ej. T-Bar Row"
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+            />
+            <datalist id="exercises">
+              {knownExercises.map(ex => <option key={ex} value={ex} />)}
+            </datalist>
+          </div>
 
-                <hr className="border-slate-800" />
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="text-xs text-slate-400 font-bold mb-1 block">PESO (KG)</label>
+              <input 
+                type="number" 
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                placeholder="0"
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 font-mono"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-xs text-slate-400 font-bold mb-1 block">REPS</label>
+              <input 
+                type="number" 
+                value={reps}
+                onChange={(e) => setReps(e.target.value)}
+                placeholder="6-8"
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 font-mono"
+              />
+            </div>
+          </div>
 
-                {/* Campo de Ejercicio con Autocompletado */}
-                <div>
-                    <label className="block text-slate-400 text-sm mb-1 ml-1">Ejercicio</label>
-                    <input
-                        list="exercise-history"
-                        type="text"
-                        value={exercise}
-                        onChange={(e) => setExercise(e.target.value)}
-                        placeholder="Ingresa un ejercicio..."
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
-                        required
-                    />
-                    <datalist id="exercise-history">
-                        {knownExercises.map((ex, i) => (
-                            <option key={i} value={ex} />
-                        ))}
-                    </datalist>
-                </div>
+          <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-lg transition-colors mt-2">
+            Guardar Serie
+          </button>
+        </form>
+      </div>
 
-                {/* Peso y Reps */}
-                <div className="flex gap-4">
-                    <div className="flex-1">
-                        <label className="block text-slate-400 text-sm mb-1 ml-1">Peso (kg)</label>
-                        <input
-                            type="number"
-                            step="0.5"
-                            value={weight}
-                            onChange={(e) => setWeight(e.target.value)}
-                            placeholder=""
-                            className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-emerald-500 transition-all text-center text-lg"
-                            required
-                        />
+      {/* Historial de la rutina actual */}
+      {workoutHistory && workoutHistory.length > 0 && (
+        <div className="mt-8 space-y-4">
+          <h3 className="text-xs text-slate-500 uppercase tracking-widest font-bold mb-4">Series de hoy</h3>
+          
+          {Object.entries(
+            workoutHistory.reduce((acc, set) => {
+              if (!acc[set.exercise]) acc[set.exercise] = []
+              acc[set.exercise].push(set)
+              return acc
+            }, {})
+          ).map(([exerciseName, sets]) => (
+            <div key={exerciseName} className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-sm">
+              <div className="bg-slate-950/50 px-4 py-3 border-b border-slate-800">
+                <h4 className="font-semibold text-slate-200">{exerciseName}</h4>
+              </div>
+              <div className="p-3 space-y-1">
+                {sets.map((set, index) => (
+                  <div key={index} className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
+                    <span className="text-sm text-slate-500 font-medium">Serie {index + 1}</span>
+                    <div className="text-emerald-400 font-mono text-sm bg-slate-950/50 px-3 py-1 rounded-md border border-slate-800">
+                      {set.weight}kg <span className="text-slate-600 px-1">×</span> {set.reps} reps
                     </div>
-                    <div className="flex-1">
-                        <label className="block text-slate-400 text-sm mb-1 ml-1">Reps</label>
-                        <input
-                            type="number"
-                            value={reps}
-                            onChange={(e) => setReps(e.target.value)}
-                            placeholder=""
-                            className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-emerald-500 transition-all text-center text-lg"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <button
-                    type="submit"
-                    className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl transition-colors mt-2"
-                >
-                    Agregar Serie
-                </button>
-            </form>
+                  </div> 
+                ))} 
+              </div>                  
+            </div>
+          ))}
         </div>
-    )
+      )}
+    </div>
+  )
 }
