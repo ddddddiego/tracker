@@ -1,10 +1,10 @@
 export default function Navigation({ activeTab, setActiveTab }) {
   const tabs = [
     { id: 'calendar', icon: '📆', label: 'Calendario' },
+    { id: 'meals', icon: '🥚', label: 'Comidas' },
     { id: 'workout', icon: '🏋🏻‍♀️', label: 'Rutina' },
     { id: 'habits', icon: '🎯', label: 'Hábitos' },
     { id: 'journal', icon: '📖', label: 'Diario' },
-    { id: 'cals', icon: '🥚', label: 'Buscar' }
   ]
 
   return (
@@ -20,4 +20,4 @@ export default function Navigation({ activeTab, setActiveTab }) {
       ))}
     </nav>
   )
-}
+}2
